@@ -8,6 +8,7 @@ import com.squareup.moshi.JsonReader
 class ReducedProfileAdapter {
 
     companion object {
+        const val FIELD_ID = "id"
         const val FIELD_AVATAR_URL = "avatar_url"
         const val FIELD_LOGIN = "login"
         const val FIELD_NAME = "name"
@@ -17,6 +18,7 @@ class ReducedProfileAdapter {
 
     @FromJson
     fun fromJson(jsonReader: JsonReader): Profile {
+        var id = -1L
         var login = ""
         var name = ""
         var location = ""
@@ -26,6 +28,7 @@ class ReducedProfileAdapter {
         jsonReader.beginObject()
         while (jsonReader.hasNext()) {
             when (jsonReader.nextName()) {
+                FIELD_ID -> id = jsonReader.nextLong()
                 FIELD_AVATAR_URL -> avatarUrl = jsonReader.nextString()
                 FIELD_LOGIN -> login = jsonReader.nextString()
                 FIELD_NAME -> name = jsonReader.nextString()
@@ -37,6 +40,7 @@ class ReducedProfileAdapter {
         jsonReader.endObject()
 
         return Profile(
+            id,
             avatarUrl,
             login,
             name,

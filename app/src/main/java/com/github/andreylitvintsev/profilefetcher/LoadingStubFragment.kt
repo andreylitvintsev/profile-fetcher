@@ -10,7 +10,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.github.andreylitvintsev.profilefetcher.viewmodel.DataRepositoryViewModel
 import com.github.andreylitvintsev.profilefetcher.viewmodel.observeDataWrapper
@@ -48,6 +47,7 @@ class LoadingStubFragment : Fragment() {
         ViewModelProviders.of(activity!!).get(DataRepositoryViewModel::class.java).apply {
             getProfile().observe(this@LoadingStubFragment, observeDataWrapper(
                 onSuccess = {
+                    this.updateProfile(it)
                     activity?.supportFragmentManager?.beginTransaction()?.replace(android.R.id.content, MainFragment())
                         ?.commit()
                 })

@@ -13,5 +13,5 @@ interface ProjectRepositoryDao {
     fun getAll(): LiveData<List<ProjectRepository>>
 
     @Insert
-    fun insertAll(vararg projectRepositories: ProjectRepository)
+    fun insertAll(projectRepositories: List<ProjectRepository>)
 }

@@ -1,9 +1,11 @@
 package com.github.andreylitvintsev.profilefetcher.repository
 
+import android.os.AsyncTask
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.github.andreylitvintsev.profilefetcher.DatabaseProvider
 import com.github.andreylitvintsev.profilefetcher.PersistentDataRepository
+import com.github.andreylitvintsev.profilefetcher.repository.local.ProfileDao
 import com.github.andreylitvintsev.profilefetcher.repository.local.ProjectRepositoryDao
 import com.github.andreylitvintsev.profilefetcher.repository.model.Profile
 import com.github.andreylitvintsev.profilefetcher.repository.model.ProjectRepository
@@ -11,16 +13,18 @@ import com.github.andreylitvintsev.profilefetcher.repository.model.ProjectReposi
 
 class LocalDataRepository(databaseProvider: DatabaseProvider) : PersistentDataRepository {
 
+    private val profileDao: ProfileDao
     private val projectRepositoryDao: ProjectRepositoryDao
 
     init {
         with(databaseProvider.provideDatabase()) {
-            projectRepositoryDao = repositoryDao()
+            profileDao = profileDao()
+            projectRepositoryDao = projectRepositoryDao()
         }
     }
 
     override fun getProfile(): LiveData<DataWrapperForErrorHanding<Profile>> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return Transformations.map(profileDao.get()) { DataWrapperForErrorHanding(it) }
     }
 
     override fun getProjectRepositories(): LiveData<DataWrapperForErrorHanding<List<ProjectRepository>>> {
@@ -28,10 +32,24 @@ class LocalDataRepository(databaseProvider: DatabaseProvider) : PersistentDataRe
     }
 
     override fun upsertProjectRepositories(projectRepositories: List<ProjectRepository>) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        UpsertAsyncTask {
+            projectRepositoryDao.insertAll(projectRepositories)
+        }.execute()
     }
 
     override fun updateProfile(profile: Profile) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        UpsertAsyncTask {
+            profileDao.upsert(profile)
+        }.execute()
     }
+
+}
+
+private class UpsertAsyncTask(private val body: () -> Unit) : AsyncTask<Void?, Void?, Void?>() {
+
+    override fun doInBackground(vararg params: Void?): Void? {
+        body.invoke()
+        return null
+    }
+
 }

@@ -23,4 +23,8 @@ class DataRepositoryViewModel(application: Application) : AndroidViewModel(appli
         return remoteDataRepository.getProfile()
     }
 
+    fun updateProfile(profile: Profile) {
+        projectRepositoriesLiveData.updateProfile(profile)
+    }
+
 }
