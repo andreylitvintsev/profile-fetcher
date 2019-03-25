@@ -7,5 +7,5 @@ import com.github.andreylitvintsev.profilefetcher.repository.model.ProjectReposi
 
 @Database(entities = [ProjectRepository::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun repositoryDao(): RepositoryDao
+    abstract fun repositoryDao(): ProjectRepositoryDao
 }

@@ -1,7 +1,6 @@
 package com.github.andreylitvintsev.profilefetcher.repository.remote
 
 import com.github.andreylitvintsev.profilefetcher.BuildConfig
-import com.github.andreylitvintsev.profilefetcher.repository.DataRepository
 import com.github.andreylitvintsev.profilefetcher.repository.DataWrapperForErrorHanding
 import com.github.andreylitvintsev.profilefetcher.repository.model.Profile
 import com.github.andreylitvintsev.profilefetcher.repository.model.ProjectRepository
@@ -14,7 +13,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 
-class RemoteDataRepository : DataRepository {
+class RemoteDataDownloader : DataDownloader {
 
     private val gitHubApi: GitHubApi
 
@@ -44,7 +43,9 @@ class RemoteDataRepository : DataRepository {
         gitHubApi = retrofit.create(GitHubApi::class.java)
     }
 
-    override fun getProfile(resultCallback: (dataWrapper: DataWrapperForErrorHanding<Profile>) -> Unit): DataRepository.Dismisser {
+    override fun getProfile(
+        resultCallback: (dataWrapper: DataWrapperForErrorHanding<Profile>) -> Unit
+    ): DataDownloader.Dismisser {
         profileCall?.cancel()
 
         profileCall = gitHubApi.getUserInfo()
@@ -63,7 +64,9 @@ class RemoteDataRepository : DataRepository {
         return configureDismisser(profileCall)
     }
 
-    override fun getRepositories(resultCallback: (dataWrapper: DataWrapperForErrorHanding<List<ProjectRepository>>) -> Unit): DataRepository.Dismisser {
+    override fun getProjectRepositories(
+        resultCallback: (dataWrapper: DataWrapperForErrorHanding<List<ProjectRepository>>) -> Unit
+    ): DataDownloader.Dismisser {
         repositoriesCall?.cancel()
 
         repositoriesCall = gitHubApi.getRepositories()
@@ -81,8 +84,8 @@ class RemoteDataRepository : DataRepository {
         return configureDismisser(repositoriesCall)
     }
 
-    private fun <T> configureDismisser(call: Call<T>?): DataRepository.Dismisser {
-        return object : DataRepository.Dismisser {
+    private fun <T> configureDismisser(call: Call<T>?): DataDownloader.Dismisser {
+        return object : DataDownloader.Dismisser {
             override fun dismiss() {
                 call?.cancel()
             }

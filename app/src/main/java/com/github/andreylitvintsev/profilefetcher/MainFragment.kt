@@ -33,7 +33,7 @@ class MainFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_main, container, false).apply {
-            dataRepositoryViewModel.profileLiveData.observe(this@MainFragment, observeDataWrapper(
+            dataRepositoryViewModel.getProfile().observe(this@MainFragment, observeDataWrapper(
                 onSuccess = { profile ->
                     loginView.text = profile.login
                     nameView.text = profile.name

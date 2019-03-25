@@ -1,17 +1,11 @@
 package com.github.andreylitvintsev.profilefetcher.repository
 
+import androidx.lifecycle.LiveData
 import com.github.andreylitvintsev.profilefetcher.repository.model.Profile
 import com.github.andreylitvintsev.profilefetcher.repository.model.ProjectRepository
 
 
 interface DataRepository {
-
-    interface Dismisser {
-        fun dismiss()
-    }
-
-    fun getProfile(resultCallback: (dataWrapper: DataWrapperForErrorHanding<Profile>) -> Unit): Dismisser
-
-    fun getRepositories(resultCallback: (dataWrapper: DataWrapperForErrorHanding<List<ProjectRepository>>) -> Unit): Dismisser
-
+    fun getProfile(): LiveData<DataWrapperForErrorHanding<Profile>>
+    fun getProjectRepositories(): LiveData<DataWrapperForErrorHanding<List<ProjectRepository>>>
 }

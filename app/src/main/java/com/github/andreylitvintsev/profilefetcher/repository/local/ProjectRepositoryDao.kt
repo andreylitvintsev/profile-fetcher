@@ -8,7 +8,7 @@ import com.github.andreylitvintsev.profilefetcher.repository.model.ProjectReposi
 
 
 @Dao
-interface RepositoryDao {
+interface ProjectRepositoryDao {
     @Query("SELECT * FROM projectrepository")
     fun getAll(): LiveData<List<ProjectRepository>>
 
