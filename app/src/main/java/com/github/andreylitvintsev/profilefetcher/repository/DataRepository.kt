@@ -8,4 +8,5 @@ import com.github.andreylitvintsev.profilefetcher.repository.model.ProjectReposi
 interface DataRepository {
     fun getProfile(): LiveData<DataWrapperForErrorHanding<Profile>>
     fun getProjectRepositories(): LiveData<DataWrapperForErrorHanding<List<ProjectRepository>>>
+    fun reload()
 }

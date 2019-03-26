@@ -43,6 +43,8 @@ class LocalDataRepository(databaseProvider: DatabaseProvider) : PersistentDataRe
         }.execute()
     }
 
+    override fun reload() = Unit // Do nothing :(
+
 }
 
 private class UpsertAsyncTask(private val body: () -> Unit) : AsyncTask<Void?, Void?, Void?>() {
