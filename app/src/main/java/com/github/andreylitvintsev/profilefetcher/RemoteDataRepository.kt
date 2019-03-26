@@ -8,18 +8,27 @@ import com.github.andreylitvintsev.profilefetcher.repository.model.ProjectReposi
 import com.github.andreylitvintsev.profilefetcher.repository.remote.DataDownloader
 
 
-class RemoteDataRepository(private val dataDownloader: DataDownloader) : DataRepository {
+class RemoteDataRepository(dataDownloader: DataDownloader) : DataRepository {
 
-    override fun getProfile(): LiveData<DataWrapperForErrorHanding<Profile>> {
-        return AutoDismisserLiveData(dataDownloader) { dataDownloader ->
+    private val profileLiveData: LiveData<DataWrapperForErrorHanding<Profile>>
+    private val projectRepositoryLiveData: LiveData<DataWrapperForErrorHanding<List<ProjectRepository>>>
+
+    init {
+        profileLiveData = AutoDismisserLiveData(dataDownloader) { dataDownloader ->
             dataDownloader.getProfile { result -> handleResult(result) }
+        }
+
+        projectRepositoryLiveData = AutoDismisserLiveData(dataDownloader) { dataDownloader ->
+            dataDownloader.getProjectRepositories { result -> handleResult(result) }
         }
     }
 
+    override fun getProfile(): LiveData<DataWrapperForErrorHanding<Profile>> {
+        return profileLiveData
+    }
+
     override fun getProjectRepositories(): LiveData<DataWrapperForErrorHanding<List<ProjectRepository>>> {
-        return AutoDismisserLiveData(dataDownloader) { dataDownloader ->
-            dataDownloader.getProjectRepositories { result -> handleResult(result) }
-        }
+        return projectRepositoryLiveData
     }
 
 }
