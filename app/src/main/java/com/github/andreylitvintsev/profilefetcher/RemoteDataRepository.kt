@@ -1,6 +1,7 @@
 package com.github.andreylitvintsev.profilefetcher
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.github.andreylitvintsev.profilefetcher.repository.DataRepository
 import com.github.andreylitvintsev.profilefetcher.repository.DataWrapperForErrorHanding
 import com.github.andreylitvintsev.profilefetcher.repository.model.Profile
@@ -8,49 +9,50 @@ import com.github.andreylitvintsev.profilefetcher.repository.model.ProjectReposi
 import com.github.andreylitvintsev.profilefetcher.repository.remote.DataDownloader
 
 
-class RemoteDataRepository(dataDownloader: DataDownloader) : DataRepository {
+class RemoteDataRepository(private val dataDownloader: DataDownloader) : DataRepository {
 
-    private val profileLiveData: LiveData<DataWrapperForErrorHanding<Profile>>
-    private val projectRepositoryLiveData: LiveData<DataWrapperForErrorHanding<List<ProjectRepository>>>
+    private val profileLiveData = MutableLiveData<DataWrapperForErrorHanding<Profile>>()
+    private val projectRepositoryLiveData = MutableLiveData<DataWrapperForErrorHanding<List<ProjectRepository>>>()
 
-    init {
-        profileLiveData = CachedLiveData(dataDownloader) {
-            it.getProfile { result -> handleResult(result) }
-        }
-
-        projectRepositoryLiveData = CachedLiveData(dataDownloader) {
-            it.getProjectRepositories { result -> handleResult(result) }
-        }
-    }
+    private var downloadProfileInProgress = false
+    private var downloadProjectRepositoriesInProgress = false
 
     override fun getProfile(): LiveData<DataWrapperForErrorHanding<Profile>> {
+        downloadProfile()
         return profileLiveData
     }
 
-    override fun getProjectRepositories(): LiveData<DataWrapperForErrorHanding<List<ProjectRepository>>> {
-        return projectRepositoryLiveData
-    }
+    private fun downloadProfile() {
+        if (!downloadProfileInProgress) {
+            downloadProfileInProgress = true
 
-}
+            dataDownloader.getProfile {
+                profileLiveData.value = it
+                downloadProfileInProgress = false
+            }
 
-private class CachedLiveData<T>( // TODO: подумай хорошенько
-    private val dataDownloader: DataDownloader,
-    private val body: CachedLiveData<T>.(dataDownloader: DataDownloader) -> DataDownloader.Dismisser
-) : LiveData<DataWrapperForErrorHanding<T>>() {
-
-    private var alreadyLoaded = false
-
-    private var dismisser: DataDownloader.Dismisser? = null
-
-    override fun onActive() {
-        if (!alreadyLoaded && dismisser == null) {
-            dismisser = body.invoke(this, dataDownloader)
         }
     }
 
-    fun handleResult(result: DataWrapperForErrorHanding<T>) {
-        alreadyLoaded = result.throwable == null
-        value = result
+    override fun getProjectRepositories(): LiveData<DataWrapperForErrorHanding<List<ProjectRepository>>> {
+        downloadProjectRepositories()
+        return projectRepositoryLiveData
+    }
+
+    private fun downloadProjectRepositories() {
+        if (!downloadProjectRepositoriesInProgress) {
+            downloadProjectRepositoriesInProgress = true
+
+            dataDownloader.getProjectRepositories {
+                projectRepositoryLiveData.value = it
+                downloadProjectRepositoriesInProgress = false
+            }
+        }
+    }
+
+    override fun reload() {
+        downloadProfile()
+        downloadProjectRepositories()
     }
 
 }

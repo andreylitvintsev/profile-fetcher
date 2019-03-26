@@ -1,7 +1,6 @@
 package com.github.andreylitvintsev.profilefetcher.viewmodel
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
@@ -42,6 +41,8 @@ class DataRepositoryViewModel(application: Application) : AndroidViewModel(appli
         return projectRepositoriesMediatorLiveData
     }
 
+    fun reload() = remoteDataRepository.reload()
+
     private inline fun <T> createMediatorLiveData(
         localSource: LiveData<DataWrapperForErrorHanding<T>>,
         remoteSource: LiveData<DataWrapperForErrorHanding<T>>,
@@ -50,23 +51,53 @@ class DataRepositoryViewModel(application: Application) : AndroidViewModel(appli
 
         val mediatorLiveData = MediatorLiveData<DataWrapperForErrorHanding<T>>()
 
-        mediatorLiveData.addSource(localSource) { localResult ->
-            if (localResult.fetchedData == null || (localResult.fetchedData as? Collection<*>)?.isEmpty() == true) {
+        mediatorLiveData.addSource(remoteSource) { remoteResult ->
 
-                mediatorLiveData.addSource(remoteSource) { remoteResult ->
-
-                    if (remoteResult.fetchedData != null) {
-                        persistData(remoteResult.fetchedData)
-                    }
-                    mediatorLiveData.value = remoteResult
-                }
+            if (remoteResult.throwable == null) {
+                persistData(remoteResult.fetchedData!!)
+                mediatorLiveData.value = remoteResult
 
             } else {
-                mediatorLiveData.value = localResult
+                mediatorLiveData.addSource(localSource) { localResult ->
+                    if (localResult.fetchedData != null) {
+                        mediatorLiveData.value = localResult
+                    } else {
+                        mediatorLiveData.value = remoteResult
+                    }
+                    mediatorLiveData.removeSource(localSource)
+                }
             }
         }
 
         return mediatorLiveData
     }
+
+//    private inline fun <T> createMediatorLiveData(
+//        localSource: LiveData<DataWrapperForErrorHanding<T>>,
+//        remoteSource: LiveData<DataWrapperForErrorHanding<T>>,
+//        crossinline persistData: (data: T) -> Unit
+//    ): MediatorLiveData<DataWrapperForErrorHanding<T>> {
+//
+//        val mediatorLiveData = MediatorLiveData<DataWrapperForErrorHanding<T>>()
+//
+//        mediatorLiveData.addSource(localSource) { localResult ->
+//            if (localResult.fetchedData == null || (localResult.fetchedData as? Collection<*>)?.isEmpty() == true) {
+//
+//                mediatorLiveData.addSource(remoteSource) { remoteResult ->
+//
+//                    if (remoteResult.fetchedData != null) {
+//                        persistData(remoteResult.fetchedData)
+//                    }
+//                    mediatorLiveData.value = remoteResult
+//                }
+//
+//            } else {
+//                mediatorLiveData.value = localResult
+//            }
+//        }
+//
+//        return mediatorLiveData
+//    }
+
 
 }
