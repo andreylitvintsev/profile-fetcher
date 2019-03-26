@@ -6,6 +6,7 @@ import com.github.andreylitvintsev.profilefetcher.repository.model.Profile
 import com.github.andreylitvintsev.profilefetcher.repository.model.ProjectRepository
 import com.squareup.moshi.Moshi
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -27,6 +28,11 @@ class RemoteDataDownloader : DataDownloader {
             .build()
 
         val okHttpClient = OkHttpClient.Builder()
+            .apply {
+                if (BuildConfig.DEBUG) {
+                    this.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
+                }
+            }
             .addInterceptor { chain ->
                 val request = chain.request().newBuilder()
                     .addHeader("Authorization", "token  ${BuildConfig.GITHUB_PROFILE_TOKEN}")
