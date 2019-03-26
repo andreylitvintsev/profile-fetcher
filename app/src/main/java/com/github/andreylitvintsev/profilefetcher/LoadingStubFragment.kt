@@ -47,7 +47,6 @@ class LoadingStubFragment : Fragment() {
         ViewModelProviders.of(activity!!).get(DataRepositoryViewModel::class.java).apply {
             getProfile().observe(this@LoadingStubFragment, observeDataWrapper(
                 onSuccess = {
-                    this.updateProfile(it)
                     activity?.supportFragmentManager?.beginTransaction()?.replace(android.R.id.content, MainFragment())
                         ?.commit()
                 })

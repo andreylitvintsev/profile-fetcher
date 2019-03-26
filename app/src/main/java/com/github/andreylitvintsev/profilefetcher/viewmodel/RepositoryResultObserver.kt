@@ -10,7 +10,6 @@ abstract class RepositoryResultObserver<T> : Observer<DataWrapperForErrorHanding
         when {
             dataWrapper?.fetchedData != null -> onSuccess(dataWrapper.fetchedData)
             dataWrapper?.throwable != null -> onError(dataWrapper.throwable)
-            else -> throw IllegalStateException("Data wrapper must contain data or exception!")
         }
     }
 
