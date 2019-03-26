@@ -59,7 +59,11 @@ class DataRepositoryViewModel(application: Application) : AndroidViewModel(appli
 
             } else {
                 mediatorLiveData.addSource(localSource) { localResult ->
-                    mediatorLiveData.value = localResult
+                    if (localResult.fetchedData != null) {
+                        mediatorLiveData.value = localResult
+                    } else {
+                        mediatorLiveData.value = remoteResult
+                    }
                     mediatorLiveData.removeSource(localSource)
                 }
             }

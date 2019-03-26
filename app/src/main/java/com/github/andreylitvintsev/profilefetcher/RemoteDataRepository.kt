@@ -14,14 +14,23 @@ class RemoteDataRepository(private val dataDownloader: DataDownloader) : DataRep
     private val profileLiveData = MutableLiveData<DataWrapperForErrorHanding<Profile>>()
     private val projectRepositoryLiveData = MutableLiveData<DataWrapperForErrorHanding<List<ProjectRepository>>>()
 
+    private var downloadProfileInProgress = false
+    private var downloadProjectRepositoriesInProgress = false
+
     override fun getProfile(): LiveData<DataWrapperForErrorHanding<Profile>> {
         downloadProfile()
         return profileLiveData
     }
 
     private fun downloadProfile() {
-        dataDownloader.getProfile {
-            profileLiveData.value = it
+        if (!downloadProfileInProgress) {
+            downloadProfileInProgress = true
+
+            dataDownloader.getProfile {
+                profileLiveData.value = it
+                downloadProfileInProgress = false
+            }
+
         }
     }
 
@@ -31,8 +40,13 @@ class RemoteDataRepository(private val dataDownloader: DataDownloader) : DataRep
     }
 
     private fun downloadProjectRepositories() {
-        dataDownloader.getProjectRepositories {
-            projectRepositoryLiveData.value = it
+        if (!downloadProjectRepositoriesInProgress) {
+            downloadProjectRepositoriesInProgress = true
+
+            dataDownloader.getProjectRepositories {
+                projectRepositoryLiveData.value = it
+                downloadProjectRepositoriesInProgress = false
+            }
         }
     }
 
