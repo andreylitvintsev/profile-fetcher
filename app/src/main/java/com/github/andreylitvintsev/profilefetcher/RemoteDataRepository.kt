@@ -14,12 +14,12 @@ class RemoteDataRepository(dataDownloader: DataDownloader) : DataRepository {
     private val projectRepositoryLiveData: LiveData<DataWrapperForErrorHanding<List<ProjectRepository>>>
 
     init {
-        profileLiveData = AutoDismisserLiveData(dataDownloader) { dataDownloader ->
-            dataDownloader.getProfile { result -> handleResult(result) }
+        profileLiveData = CachedLiveData(dataDownloader) {
+            it.getProfile { result -> handleResult(result) }
         }
 
-        projectRepositoryLiveData = AutoDismisserLiveData(dataDownloader) { dataDownloader ->
-            dataDownloader.getProjectRepositories { result -> handleResult(result) }
+        projectRepositoryLiveData = CachedLiveData(dataDownloader) {
+            it.getProjectRepositories { result -> handleResult(result) }
         }
     }
 
@@ -33,21 +33,17 @@ class RemoteDataRepository(dataDownloader: DataDownloader) : DataRepository {
 
 }
 
-private class AutoDismisserLiveData<T>(
+private class CachedLiveData<T>( // TODO: подумай хорошенько
     private val dataDownloader: DataDownloader,
-    private val body: AutoDismisserLiveData<T>.(dataDownloader: DataDownloader) -> DataDownloader.Dismisser
+    private val body: CachedLiveData<T>.(dataDownloader: DataDownloader) -> DataDownloader.Dismisser
 ) : LiveData<DataWrapperForErrorHanding<T>>() {
 
     private var alreadyLoaded = false
 
-    private lateinit var dismisser: DataDownloader.Dismisser
-
-    override fun onInactive() {
-        if (!hasObservers()) dismisser.dismiss()
-    }
+    private var dismisser: DataDownloader.Dismisser? = null
 
     override fun onActive() {
-        if (!alreadyLoaded) {
+        if (!alreadyLoaded && dismisser == null) {
             dismisser = body.invoke(this, dataDownloader)
         }
     }

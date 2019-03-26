@@ -1,6 +1,7 @@
 package com.github.andreylitvintsev.profilefetcher.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
@@ -27,7 +28,7 @@ class DataRepositoryViewModel(application: Application) : AndroidViewModel(appli
         localDataRepository::updateProfile
     )
 
-    private val projectRepostoriesMediatorLiveData = createMediatorLiveData(
+    private val projectRepositoriesMediatorLiveData = createMediatorLiveData(
         localDataRepository.getProjectRepositories(),
         remoteDataRepository.getProjectRepositories(),
         localDataRepository::upsertProjectRepositories
@@ -38,7 +39,7 @@ class DataRepositoryViewModel(application: Application) : AndroidViewModel(appli
     }
 
     fun getRepositories(): LiveData<DataWrapperForErrorHanding<List<ProjectRepository>>> {
-        return projectRepostoriesMediatorLiveData
+        return projectRepositoriesMediatorLiveData
     }
 
     private inline fun <T> createMediatorLiveData(
