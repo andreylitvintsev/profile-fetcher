@@ -20,6 +20,9 @@ class LoadingStubFragment : Fragment() {
 
     private lateinit var connectivityService: ConnectivityManager
 
+    private var profileDataIsReady = false
+    private var projectRepositoryDataIsReady = false
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
@@ -47,11 +50,26 @@ class LoadingStubFragment : Fragment() {
         ViewModelProviders.of(activity!!).get(DataRepositoryViewModel::class.java).apply {
             getProfile().observe(this@LoadingStubFragment, observeDataWrapper(
                 onSuccess = {
-                    activity?.supportFragmentManager?.beginTransaction()?.replace(android.R.id.content, MainFragment())
-                        ?.commit()
+                    profileDataIsReady = true
+                    if (projectRepositoryDataIsReady) openMainFragment()
                 })
             )
+            getRepositories().observe(this@LoadingStubFragment, observeDataWrapper(
+                onSuccess = {
+                    projectRepositoryDataIsReady = true
+                    if (profileDataIsReady) openMainFragment()
+                }
+            ))
         }
+
+
+    }
+
+    private fun openMainFragment() {
+        activity?.supportFragmentManager
+            ?.beginTransaction()
+            ?.replace(android.R.id.content, MainFragment())
+            ?.commit()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
