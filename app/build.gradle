@@ -14,7 +14,7 @@ keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "com.github.andreylitvintsev.weathermvvm"
+        applicationId "com.github.andreylitvintsev.profilefetcher"
         minSdkVersion 21
         targetSdkVersion 28
         versionCode 1
@@ -37,6 +37,7 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.1.0-alpha04'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.0.0'
 
     implementation "androidx.lifecycle:lifecycle-extensions:2.1.0-alpha03"
 

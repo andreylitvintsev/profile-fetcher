@@ -3,7 +3,9 @@
               xmlns:tools="http://schemas.android.com/tools"
               android:orientation="horizontal"
               android:layout_width="match_parent"
-              android:layout_height="match_parent"
+              android:layout_height="wrap_content"
+              android:paddingTop="28dp"
+              android:paddingBottom="28dp"
               android:gravity="center">
 
     <ImageView
