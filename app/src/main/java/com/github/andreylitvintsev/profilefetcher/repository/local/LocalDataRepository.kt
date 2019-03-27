@@ -1,17 +1,17 @@
-package com.github.andreylitvintsev.profilefetcher.repository
+package com.github.andreylitvintsev.profilefetcher.repository.local
 
 import android.os.AsyncTask
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.github.andreylitvintsev.profilefetcher.DatabaseProvider
-import com.github.andreylitvintsev.profilefetcher.PersistentDataRepository
-import com.github.andreylitvintsev.profilefetcher.repository.local.ProfileDao
-import com.github.andreylitvintsev.profilefetcher.repository.local.ProjectRepositoryDao
+import com.github.andreylitvintsev.profilefetcher.repository.DataWrapperForErrorHanding
+import com.github.andreylitvintsev.profilefetcher.repository.PersistentDataRepository
 import com.github.andreylitvintsev.profilefetcher.repository.model.Profile
 import com.github.andreylitvintsev.profilefetcher.repository.model.ProjectRepository
 
 
-class LocalDataRepository(databaseProvider: DatabaseProvider) : PersistentDataRepository {
+class LocalDataRepository(databaseProvider: DatabaseProvider) :
+    PersistentDataRepository {
 
     private val profileDao: ProfileDao
     private val projectRepositoryDao: ProjectRepositoryDao
@@ -24,11 +24,19 @@ class LocalDataRepository(databaseProvider: DatabaseProvider) : PersistentDataRe
     }
 
     override fun getProfile(): LiveData<DataWrapperForErrorHanding<Profile>> {
-        return Transformations.map(profileDao.get()) { DataWrapperForErrorHanding(it) }
+        return Transformations.map(profileDao.get()) {
+            DataWrapperForErrorHanding(
+                it
+            )
+        }
     }
 
     override fun getProjectRepositories(): LiveData<DataWrapperForErrorHanding<List<ProjectRepository>>> {
-        return Transformations.map(projectRepositoryDao.getAll()) { DataWrapperForErrorHanding(it) }
+        return Transformations.map(projectRepositoryDao.getAll()) {
+            DataWrapperForErrorHanding(
+                it
+            )
+        }
     }
 
     override fun upsertProjectRepositories(projectRepositories: List<ProjectRepository>) {

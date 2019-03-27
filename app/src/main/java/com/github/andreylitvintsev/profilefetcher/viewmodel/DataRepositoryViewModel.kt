@@ -5,9 +5,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import com.github.andreylitvintsev.profilefetcher.DatabaseProvider
-import com.github.andreylitvintsev.profilefetcher.RemoteDataRepository
+import com.github.andreylitvintsev.profilefetcher.repository.remote.RemoteDataRepository
 import com.github.andreylitvintsev.profilefetcher.repository.DataWrapperForErrorHanding
-import com.github.andreylitvintsev.profilefetcher.repository.LocalDataRepository
+import com.github.andreylitvintsev.profilefetcher.repository.local.LocalDataRepository
 import com.github.andreylitvintsev.profilefetcher.repository.model.Profile
 import com.github.andreylitvintsev.profilefetcher.repository.model.ProjectRepository
 import com.github.andreylitvintsev.profilefetcher.repository.remote.RemoteDataDownloader
@@ -18,8 +18,10 @@ class DataRepositoryViewModel(application: Application) : AndroidViewModel(appli
     private val dataDownloader = RemoteDataDownloader()
     private val databaseProvider = application as DatabaseProvider
 
-    private val remoteDataRepository = RemoteDataRepository(dataDownloader)
-    private val localDataRepository = LocalDataRepository(databaseProvider)
+    private val remoteDataRepository =
+        RemoteDataRepository(dataDownloader)
+    private val localDataRepository =
+        LocalDataRepository(databaseProvider)
 
     private val profileMediatorLiveData = createMediatorLiveData(
         localDataRepository.getProfile(),

@@ -43,10 +43,12 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         val dataAdapter = DataAdapter(customTabsIntent)
+
+        // TODO: корректно настроить
         recyclerView.setHasFixedSize(true)
         recyclerView.layoutManager = LinearLayoutManager(context).also {
-            // TODO: корректно настроить
             it.initialPrefetchItemCount = 10
             it.isItemPrefetchEnabled = true
         }

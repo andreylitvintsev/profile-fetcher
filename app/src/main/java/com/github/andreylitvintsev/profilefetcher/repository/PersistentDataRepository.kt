@@ -1,4 +1,4 @@
-package com.github.andreylitvintsev.profilefetcher
+package com.github.andreylitvintsev.profilefetcher.repository
 
 import com.github.andreylitvintsev.profilefetcher.repository.DataRepository
 import com.github.andreylitvintsev.profilefetcher.repository.model.Profile

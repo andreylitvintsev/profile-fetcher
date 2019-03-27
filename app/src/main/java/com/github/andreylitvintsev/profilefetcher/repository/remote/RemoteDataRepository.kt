@@ -1,4 +1,4 @@
-package com.github.andreylitvintsev.profilefetcher
+package com.github.andreylitvintsev.profilefetcher.repository.remote
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
