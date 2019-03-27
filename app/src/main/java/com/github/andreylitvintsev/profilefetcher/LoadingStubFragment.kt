@@ -92,12 +92,4 @@ class LoadingStubFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_loading_stub, container, false)
     }
 
-//    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-//        super.onViewCreated(view, savedInstanceState)
-//        if (connectivityService.activeNetworkInfo?.isConnected == true) {
-//            rootViewAnimator.displayedChild = 0
-//        } else {
-//            rootViewAnimator.displayedChild = 1
-//        }
-//    }
 }
