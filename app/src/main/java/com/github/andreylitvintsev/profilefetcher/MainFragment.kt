@@ -48,10 +48,10 @@ class MainFragment : Fragment() {
 
         // TODO: корректно настроить
         recyclerView.setHasFixedSize(true)
-        recyclerView.layoutManager = LinearLayoutManager(context).also {
+        recyclerView.layoutManager = LinearLayoutManager(context)/*.also {
             it.initialPrefetchItemCount = 10
             it.isItemPrefetchEnabled = true
-        }
+        }*/
         recyclerView.adapter = dataAdapter
 
         dataRepositoryViewModel.getProfile().observe(this@MainFragment, observeDataWrapper(
@@ -64,22 +64,20 @@ class MainFragment : Fragment() {
 
 }
 
-class DataAdapter(private val customTabsIntent: CustomTabsIntent) : RecyclerView.Adapter<BindViewHolder>() {
+class DataAdapter(private val customTabsIntent: CustomTabsIntent) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val PROFILE_VIEW_TYPE = 0
     private val PROJECT_REPOSITORY_VIEW_TYPE = 1
 
     private var profile: Profile? = null
     private var projectRepositories: List<ProjectRepository>? = null
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BindViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             PROFILE_VIEW_TYPE -> ProfileViewHolder(
-                profile,
                 LayoutInflater.from(parent.context).inflate(R.layout.item_profile_info, parent, false),
                 customTabsIntent
             )
             else -> ProjectRepositoryViewHolder(
-                projectRepositories,
                 LayoutInflater.from(parent.context).inflate(R.layout.item_project_repository, parent, false),
                 customTabsIntent
             )
@@ -98,8 +96,12 @@ class DataAdapter(private val customTabsIntent: CustomTabsIntent) : RecyclerView
 
     override fun getItemCount(): Int = (projectRepositories?.size ?: 0) + 1 // "project repositories" + "profile"
 
-    override fun onBindViewHolder(holder: BindViewHolder, position: Int) {
-        holder.onBindViewHolder(position)
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        if (position == 0) {
+            (holder as ProfileViewHolder).onBindViewHolder(profile)
+        } else {
+            (holder as ProjectRepositoryViewHolder).onBindViewHolder(projectRepositories?.getOrNull(position - 1))
+        }
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -110,15 +112,11 @@ class DataAdapter(private val customTabsIntent: CustomTabsIntent) : RecyclerView
     }
 }
 
-abstract class BindViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    abstract fun onBindViewHolder(position: Int)
-}
 
 private class ProfileViewHolder(
-    private val profile: Profile?,
     itemView: View,
     private val customTabsIntent: CustomTabsIntent
-) : BindViewHolder(itemView) {
+) : RecyclerView.ViewHolder(itemView) {
 
     private val loginView = itemView.findViewById<TextView>(R.id.loginView)
     private val nameView = itemView.findViewById<TextView>(R.id.nameView)
@@ -126,15 +124,15 @@ private class ProfileViewHolder(
     private val avatarView = itemView.findViewById<ImageView>(R.id.avatarView)
     private val githubButton = itemView.findViewById<View>(R.id.githubButton)
 
-    override fun onBindViewHolder(position: Int) {
-        if (profile != null) {
-            loginView.text = profile.login
-            nameView.text = profile.name
-            locationView.text = profile.location
-            avatarView.loadImageFrom(profile.avatarUrl)
-            githubButton.setOnClickListener {
-                customTabsIntent.launchUrl(it.context, Uri.parse(profile.url))
-            }
+    fun onBindViewHolder(profile: Profile?) {
+        if (profile == null) return
+
+        loginView.text = profile.login
+        nameView.text = profile.name
+        locationView.text = profile.location
+        avatarView.loadImageFrom(profile.avatarUrl)
+        githubButton.setOnClickListener {
+            customTabsIntent.launchUrl(it.context, Uri.parse(profile.url))
         }
     }
 
@@ -149,10 +147,9 @@ private class ProfileViewHolder(
 }
 
 private class ProjectRepositoryViewHolder(
-    private val projectRepositories: List<ProjectRepository>?,
     itemView: View,
     private val customTabsIntent: CustomTabsIntent
-) : BindViewHolder(itemView) {
+) : RecyclerView.ViewHolder(itemView) {
 
     private val isPrivateView = itemView.findViewById<ImageView>(R.id.isPrivateView)
     private val projectNameView = itemView.findViewById<TextView>(R.id.projectNameView)
@@ -160,15 +157,15 @@ private class ProjectRepositoryViewHolder(
     private val publicDrawable = ContextCompat.getDrawable(itemView.context, R.drawable.ic_lock_open)
     private val privateDrawable = ContextCompat.getDrawable(itemView.context, R.drawable.ic_lock)
 
-    override fun onBindViewHolder(position: Int) {
-        if (projectRepositories != null) {
-            with(projectRepositories[position - 1]) {
-                itemView.setOnClickListener {
-                    customTabsIntent.launchUrl(it.context, Uri.parse(url))
-                }
-                isPrivateView.setImageDrawable(if (isPrivate) privateDrawable else publicDrawable)
-                projectNameView.text = this.name
+    fun onBindViewHolder(projectRepository: ProjectRepository?) {
+        if (projectRepository == null) return
+
+        with(projectRepository) {
+            itemView.setOnClickListener {
+                customTabsIntent.launchUrl(it.context, Uri.parse(url))
             }
+            isPrivateView.setImageDrawable(if (isPrivate) privateDrawable else publicDrawable)
+            projectNameView.text = this.name
         }
     }
 
