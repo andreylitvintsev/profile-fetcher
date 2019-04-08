@@ -56,4 +56,7 @@ dependencies {
     debugImplementation 'com.squareup.okhttp3:logging-interceptor:3.10.0'
 
     debugImplementation 'com.facebook.stetho:stetho:1.5.1'
+
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.3'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-support-fragment:1.6.3'
 }

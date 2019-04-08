@@ -27,6 +27,8 @@ class LoadingStubFragment : Fragment() {
     private var profileDataIsReady = false
     private var projectRepositoriesDataIsReady = false
 
+    private lateinit var networkConnectivityCallbacks: ConnectivityManager.NetworkCallback
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
@@ -36,16 +38,24 @@ class LoadingStubFragment : Fragment() {
 
         tryLoadData()
 
+        networkConnectivityCallbacks = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network?) {
+                activity?.runOnUiThread {
+                    rootViewAnimator.displayedChild = 0
+                    dataRepositoryViewModel.reload()
+                }
+            }
+        }
+
         connectivityService.registerNetworkCallback(
             NetworkRequest.Builder().addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).build(),
-            object : ConnectivityManager.NetworkCallback() {
-                override fun onAvailable(network: Network?) {
-                    activity?.runOnUiThread {
-                        rootViewAnimator.displayedChild = 0
-                        dataRepositoryViewModel.reload()
-                    }
-                }
-            })
+            networkConnectivityCallbacks
+        )
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        connectivityService.unregisterNetworkCallback(networkConnectivityCallbacks)
     }
 
     private fun tryLoadData() {
