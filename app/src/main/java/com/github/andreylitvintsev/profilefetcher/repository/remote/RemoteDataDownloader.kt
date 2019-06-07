@@ -1,12 +1,10 @@
 package com.github.andreylitvintsev.profilefetcher.repository.remote
 
-import com.github.andreylitvintsev.profilefetcher.BuildConfig
+import com.github.andreylitvintsev.profilefetcher.OkHttpClientProvider
 import com.github.andreylitvintsev.profilefetcher.repository.DataWrapperForErrorHanding
 import com.github.andreylitvintsev.profilefetcher.repository.model.Profile
 import com.github.andreylitvintsev.profilefetcher.repository.model.ProjectRepository
 import com.squareup.moshi.Moshi
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -14,7 +12,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 
-class RemoteDataDownloader : DataDownloader {
+class RemoteDataDownloader(okHttpClientProvider: OkHttpClientProvider) : DataDownloader {
 
     private val gitHubApi: GitHubApi
 
@@ -27,23 +25,10 @@ class RemoteDataDownloader : DataDownloader {
             .add(ReducedRepositoryAdapter())
             .build()
 
-        val okHttpClient = OkHttpClient.Builder()
-            .apply {
-                if (BuildConfig.DEBUG) {
-                    this.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
-                }
-            }
-            .addInterceptor { chain ->
-                val request = chain.request().newBuilder()
-                    .addHeader("Authorization", "token  ${BuildConfig.GITHUB_PROFILE_TOKEN}")
-                    .build()
-                chain.proceed(request)
-            }.build()
-
         val retrofit = Retrofit.Builder()
             .baseUrl("https://api.github.com/")
             .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .client(okHttpClient)
+            .client(okHttpClientProvider.provideOkHttp())
             .build()
 
         gitHubApi = retrofit.create(GitHubApi::class.java)

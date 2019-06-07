@@ -1,0 +1,66 @@
+package com.github.andreylitvintsev.profilefetcher
+
+import android.app.Application
+import androidx.room.Room
+import com.facebook.stetho.Stetho
+import com.github.andreylitvintsev.profilefetcher.repository.local.AppDatabase
+import com.squareup.leakcanary.LeakCanary
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+
+
+interface DatabaseProvider {
+    fun provideDatabase(): AppDatabase
+}
+
+interface OkHttpClientProvider {
+    fun provideOkHttp(): OkHttpClient
+}
+
+class InjectorApplication : Application(), DatabaseProvider, OkHttpClientProvider {
+
+    private lateinit var database: AppDatabase
+    private lateinit var okHttpClient: OkHttpClient
+
+    override fun provideDatabase(): AppDatabase = database
+
+    override fun provideOkHttp(): OkHttpClient = okHttpClient
+
+    override fun onCreate() {
+        super.onCreate()
+
+        if (LeakCanary.isInAnalyzerProcess(this)) {
+            // This process is dedicated to LeakCanary for heap analysis.
+            // You should not init your app in this process.
+            return;
+        }
+        LeakCanary.install(this);
+
+        if (BuildConfig.DEBUG) {
+            Stetho.initializeWithDefaults(this)
+        }
+
+        initDatabase()
+        initOkHttpClient()
+    }
+
+    private fun initDatabase() {
+        database = Room.databaseBuilder(this, AppDatabase::class.java, "database").build()
+    }
+
+    private fun initOkHttpClient() {
+        okHttpClient = OkHttpClient.Builder()
+            .apply {
+                if (BuildConfig.DEBUG) {
+                    this.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
+                }
+            }
+            .addInterceptor { chain ->
+                val request = chain.request().newBuilder()
+                    .addHeader("Authorization", "token  ${BuildConfig.GITHUB_PROFILE_TOKEN}")
+                    .build()
+                chain.proceed(request)
+            }.build()
+    }
+
+}
