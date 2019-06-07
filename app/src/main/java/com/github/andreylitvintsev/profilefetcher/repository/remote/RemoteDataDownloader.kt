@@ -1,5 +1,6 @@
 package com.github.andreylitvintsev.profilefetcher.repository.remote
 
+import com.github.andreylitvintsev.profilefetcher.MoshiProvider
 import com.github.andreylitvintsev.profilefetcher.OkHttpClientProvider
 import com.github.andreylitvintsev.profilefetcher.repository.DataWrapperForErrorHanding
 import com.github.andreylitvintsev.profilefetcher.repository.model.Profile
@@ -12,7 +13,10 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 
-class RemoteDataDownloader(okHttpClientProvider: OkHttpClientProvider) : DataDownloader {
+class RemoteDataDownloader(
+    moshiProvider: MoshiProvider,
+    okHttpClientProvider: OkHttpClientProvider
+) : DataDownloader {
 
     private val gitHubApi: GitHubApi
 
@@ -20,14 +24,9 @@ class RemoteDataDownloader(okHttpClientProvider: OkHttpClientProvider) : DataDow
     private var repositoriesCall: Call<List<ProjectRepository>>? = null
 
     init {
-        val moshi = Moshi.Builder()
-            .add(ReducedProfileAdapter())
-            .add(ReducedRepositoryAdapter())
-            .build()
-
         val retrofit = Retrofit.Builder()
             .baseUrl("https://api.github.com/")
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .addConverterFactory(MoshiConverterFactory.create(moshiProvider.provideMoshi()))
             .client(okHttpClientProvider.provideOkHttp())
             .build()
 

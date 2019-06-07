@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import com.github.andreylitvintsev.profilefetcher.DatabaseProvider
+import com.github.andreylitvintsev.profilefetcher.MoshiProvider
 import com.github.andreylitvintsev.profilefetcher.OkHttpClientProvider
 import com.github.andreylitvintsev.profilefetcher.repository.remote.RemoteDataRepository
 import com.github.andreylitvintsev.profilefetcher.repository.DataWrapperForErrorHanding
@@ -17,9 +18,10 @@ import com.github.andreylitvintsev.profilefetcher.repository.remote.RemoteDataDo
 class DataRepositoryViewModel(application: Application) : AndroidViewModel(application) {
 
     private val databaseProvider = application as DatabaseProvider
+    private val moshiProvider = application as MoshiProvider
     private val okHttpClientProvider = application as OkHttpClientProvider
 
-    private val dataDownloader = RemoteDataDownloader(okHttpClientProvider)
+    private val dataDownloader = RemoteDataDownloader(moshiProvider, okHttpClientProvider)
 
     private val remoteDataRepository =
         RemoteDataRepository(dataDownloader)
