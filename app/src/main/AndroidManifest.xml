@@ -15,9 +15,9 @@
             android:theme="@style/AppTheme">
         <activity android:name="com.github.andreylitvintsev.profilefetcher.MainActivity"
                   android:launchMode="singleTask">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
 
@@ -27,8 +27,8 @@
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="profilefetcher"/>
             </intent-filter>
-        </activity>
 
+        </activity>
 
     </application>
 
