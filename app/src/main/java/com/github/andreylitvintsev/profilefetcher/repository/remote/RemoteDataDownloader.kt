@@ -5,7 +5,6 @@ import com.github.andreylitvintsev.profilefetcher.OkHttpClientProvider
 import com.github.andreylitvintsev.profilefetcher.repository.DataWrapperForErrorHanding
 import com.github.andreylitvintsev.profilefetcher.repository.model.Profile
 import com.github.andreylitvintsev.profilefetcher.repository.model.ProjectRepository
-import com.squareup.moshi.Moshi
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
