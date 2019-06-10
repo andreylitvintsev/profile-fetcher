@@ -21,6 +21,14 @@ import java.net.UnknownHostException
 
 class LoadingStubFragment : Fragment() {
 
+    companion object {
+        fun instantiate(authToken: String) = LoadingStubFragment().apply {
+            this.authToken = authToken
+        }
+    }
+
+    private lateinit var authToken: String
+
     private lateinit var connectivityService: ConnectivityManager
 
     private lateinit var dataRepositoryViewModel: DataRepositoryViewModel
@@ -34,7 +42,7 @@ class LoadingStubFragment : Fragment() {
         super.onAttach(context)
 
         dataRepositoryViewModel = ViewModelProviders.of(
-            activity!!, DataRepositoryViewModelFactory(BuildConfig.GITHUB_PROFILE_TOKEN, activity!!.application)
+            activity!!, DataRepositoryViewModelFactory(authToken, activity!!.application)
         ).get(DataRepositoryViewModel::class.java)
 
         connectivityService = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
