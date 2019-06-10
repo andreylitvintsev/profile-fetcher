@@ -9,6 +9,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 
+// TODO: сделать подстановку токена
+// TODO: сделать вывод на окно авторизации при удалении токена
+// TODO: сделать отображение загрузки
 
 // TODO: https://github.com/square/okhttp/wiki/Recipes
 class MainActivity : AppCompatActivity(), NewIntentListenerHolder, DetectAuthTokenListener {

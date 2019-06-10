@@ -52,15 +52,17 @@ class AuthFragment : Fragment(), OnNewIntentListener {
     }
 
     override fun onNewIntent(intent: Intent?) {
-        val uri = Uri.parse(intent!!.dataString) // FIXME
-        if (uri != null) {
-            ViewModelProviders.of(activity!!)
-                .get(AuthViewModel::class.java)
-                .getAuthToken(
-                    uri.getQueryParameter("code")!!,
-                    uri.getQueryParameter("state")!!
-                )
-                .observe(this, observeDataWrapper(::onSuccess, ::onError))
+        if (intent?.dataString != null) {
+            val uri = Uri.parse(intent.dataString) // FIXME
+            if (uri != null) {
+                ViewModelProviders.of(activity!!)
+                    .get(AuthViewModel::class.java)
+                    .getAuthToken(
+                        uri.getQueryParameter("code")!!,
+                        uri.getQueryParameter("state")!!
+                    )
+                    .observe(this, observeDataWrapper(::onSuccess, ::onError))
+            }
         }
     }
 
