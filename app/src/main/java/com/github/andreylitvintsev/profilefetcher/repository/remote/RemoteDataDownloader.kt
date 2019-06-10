@@ -13,6 +13,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 
 
 class RemoteDataDownloader(
+    private val authToken: String,
     moshiProvider: MoshiProvider,
     okHttpClientProvider: OkHttpClientProvider
 ) : DataDownloader {
@@ -37,7 +38,7 @@ class RemoteDataDownloader(
     ): DataDownloader.Dismisser {
         profileCall?.cancel()
 
-        profileCall = gitHubApi.getUserInfo()
+        profileCall = gitHubApi.getUserInfo("token $authToken")
         profileCall?.enqueue(object : Callback<Profile> {
             override fun onFailure(call: Call<Profile>, throwable: Throwable) {
                 return resultCallback(DataWrapperForErrorHanding(throwable))
@@ -58,7 +59,7 @@ class RemoteDataDownloader(
     ): DataDownloader.Dismisser {
         repositoriesCall?.cancel()
 
-        repositoriesCall = gitHubApi.getRepositories()
+        repositoriesCall = gitHubApi.getRepositories("token $authToken")
         repositoriesCall?.enqueue(object : Callback<List<ProjectRepository>> {
             override fun onFailure(call: Call<List<ProjectRepository>>, throwable: Throwable) =
                 resultCallback(DataWrapperForErrorHanding(throwable))

@@ -70,15 +70,10 @@ class InjectorApplication : Application(), DatabaseProvider, MoshiProvider, OkHt
         okHttpClient = OkHttpClient.Builder()
             .apply {
                 if (BuildConfig.DEBUG) {
-                    this.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
+                    this.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.HEADERS))
                 }
             }
-            .addInterceptor { chain ->
-                val request = chain.request().newBuilder()
-                    .addHeader("Authorization", "token  ${BuildConfig.GITHUB_PROFILE_TOKEN}")
-                    .build()
-                chain.proceed(request)
-            }.build()
+            .build()
     }
 
 }

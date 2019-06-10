@@ -7,21 +7,21 @@ import androidx.lifecycle.MediatorLiveData
 import com.github.andreylitvintsev.profilefetcher.DatabaseProvider
 import com.github.andreylitvintsev.profilefetcher.MoshiProvider
 import com.github.andreylitvintsev.profilefetcher.OkHttpClientProvider
-import com.github.andreylitvintsev.profilefetcher.repository.remote.RemoteDataRepository
 import com.github.andreylitvintsev.profilefetcher.repository.DataWrapperForErrorHanding
 import com.github.andreylitvintsev.profilefetcher.repository.local.LocalDataRepository
 import com.github.andreylitvintsev.profilefetcher.repository.model.Profile
 import com.github.andreylitvintsev.profilefetcher.repository.model.ProjectRepository
 import com.github.andreylitvintsev.profilefetcher.repository.remote.RemoteDataDownloader
+import com.github.andreylitvintsev.profilefetcher.repository.remote.RemoteDataRepository
 
 
-class DataRepositoryViewModel(application: Application) : AndroidViewModel(application) {
+class DataRepositoryViewModel(authToken: String, application: Application) : AndroidViewModel(application) {
 
     private val databaseProvider = application as DatabaseProvider
     private val moshiProvider = application as MoshiProvider
     private val okHttpClientProvider = application as OkHttpClientProvider
 
-    private val dataDownloader = RemoteDataDownloader(moshiProvider, okHttpClientProvider)
+    private val dataDownloader = RemoteDataDownloader(authToken, moshiProvider, okHttpClientProvider)
 
     private val remoteDataRepository =
         RemoteDataRepository(dataDownloader)

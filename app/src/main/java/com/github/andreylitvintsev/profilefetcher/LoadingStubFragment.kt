@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import com.github.andreylitvintsev.profilefetcher.viewmodel.DataRepositoryViewModel
+import com.github.andreylitvintsev.profilefetcher.viewmodel.DataRepositoryViewModelFactory
 import com.github.andreylitvintsev.profilefetcher.viewmodel.observeDataWrapper
 import kotlinx.android.synthetic.main.fragment_loading_stub.*
 import java.net.ConnectException
@@ -32,7 +33,9 @@ class LoadingStubFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        dataRepositoryViewModel = ViewModelProviders.of(activity!!).get(DataRepositoryViewModel::class.java)
+        dataRepositoryViewModel = ViewModelProviders.of(
+            activity!!, DataRepositoryViewModelFactory(BuildConfig.GITHUB_PROFILE_TOKEN, activity!!.application)
+        ).get(DataRepositoryViewModel::class.java)
 
         connectivityService = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
