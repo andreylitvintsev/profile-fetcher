@@ -9,7 +9,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 
-// TODO: сделать вывод на окно авторизации при удалении токена
+// TODO: попробовать перенести обертку в Event
+// TODO: попробовать перенести убрать ленивую иництализацию
+// TODO: решить проблемы с отсутсвием интернета
+// TODO: разлогин
 // TODO: сделать отображение загрузки
 
 // TODO: https://github.com/square/okhttp/wiki/Recipes
@@ -24,11 +27,12 @@ class MainActivity : AppCompatActivity(), NewIntentListenerHolder, DetectAuthTok
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Log.d("TAG", "onCreate")
+        val authToken = getPreferences(Activity.MODE_PRIVATE).getString(AUTH_TOKEN_KEY, "")
 
-        val authToken = getPreferences(Activity.MODE_PRIVATE).getString(AUTH_TOKEN_KEY, null)
+        Log.d("TOKEN", "old token $authToken")
 
-        if (authToken == null) requestToken()
+
+        if (authToken.isEmpty()) requestToken()
         else onDetectAuthToken(authToken)
     }
 

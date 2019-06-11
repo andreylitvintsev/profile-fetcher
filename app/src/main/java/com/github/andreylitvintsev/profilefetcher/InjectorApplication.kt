@@ -70,7 +70,7 @@ class InjectorApplication : Application(), DatabaseProvider, MoshiProvider, OkHt
         okHttpClient = OkHttpClient.Builder()
             .apply {
                 if (BuildConfig.DEBUG) {
-                    this.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.HEADERS))
+                    this.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
                 }
             }
             .build()

@@ -6,20 +6,21 @@ import com.github.andreylitvintsev.profilefetcher.repository.DataRepository
 import com.github.andreylitvintsev.profilefetcher.repository.DataWrapperForErrorHanding
 import com.github.andreylitvintsev.profilefetcher.repository.model.Profile
 import com.github.andreylitvintsev.profilefetcher.repository.model.ProjectRepository
+import com.github.andreylitvintsev.profilefetcher.viewmodel.Event
 
 
 class RemoteDataRepository(private val dataDownloader: DataDownloader) : DataRepository {
 
-    private val profileLiveData = MutableLiveData<DataWrapperForErrorHanding<Profile>>()
-    private val projectRepositoryLiveData = MutableLiveData<DataWrapperForErrorHanding<List<ProjectRepository>>>()
+    private val profileLiveData = MutableLiveData<Event<DataWrapperForErrorHanding<Profile>>>()
+    private val projectRepositoryLiveData = MutableLiveData<Event<DataWrapperForErrorHanding<List<ProjectRepository>>>>()
 
-    private var downloadProfileInProgress = false
-    private var downloadProjectRepositoriesInProgress = false
+    private var downloadProfileDismisser: DataDownloader.Dismisser? = null
+    private var downloadProjectReposirotiesDismisser: DataDownloader.Dismisser? = null
 
     private var alreadyProfileDownloaded = false
     private var alreadyProjectRepositoriesDownloaded = false
 
-    override fun getProfile(): LiveData<DataWrapperForErrorHanding<Profile>> {
+    override fun getProfile(): LiveData<Event<DataWrapperForErrorHanding<Profile>>> {
         downloadProfile()
         return profileLiveData
     }
@@ -27,19 +28,18 @@ class RemoteDataRepository(private val dataDownloader: DataDownloader) : DataRep
     private fun downloadProfile(refreshLoadedData: Boolean = false) {
         if (alreadyProfileDownloaded && !refreshLoadedData) return
 
-        if (!downloadProfileInProgress) {
-            downloadProfileInProgress = true
+        if (downloadProfileDismisser == null) {
 
-            dataDownloader.getProfile {
-                profileLiveData.value = it
-                downloadProfileInProgress = false
+            downloadProfileDismisser = dataDownloader.getProfile {
+                profileLiveData.value = Event(it)
+                downloadProfileDismisser = null
                 alreadyProfileDownloaded = true
             }
 
         }
     }
 
-    override fun getProjectRepositories(): LiveData<DataWrapperForErrorHanding<List<ProjectRepository>>> {
+    override fun getProjectRepositories(): LiveData<Event<DataWrapperForErrorHanding<List<ProjectRepository>>>> {
         downloadProjectRepositories()
         return projectRepositoryLiveData
     }
@@ -47,12 +47,11 @@ class RemoteDataRepository(private val dataDownloader: DataDownloader) : DataRep
     private fun downloadProjectRepositories(refreshLoadedData: Boolean = false) {
         if (alreadyProjectRepositoriesDownloaded && !refreshLoadedData) return
 
-        if (!downloadProjectRepositoriesInProgress) {
-            downloadProjectRepositoriesInProgress = true
+        if (downloadProjectReposirotiesDismisser == null) {
 
-            dataDownloader.getProjectRepositories {
-                projectRepositoryLiveData.value = it
-                downloadProjectRepositoriesInProgress = false
+            downloadProjectReposirotiesDismisser = dataDownloader.getProjectRepositories {
+                projectRepositoryLiveData.value = Event(it)
+                downloadProjectReposirotiesDismisser = null
                 alreadyProjectRepositoriesDownloaded = true
             }
         }
@@ -62,4 +61,15 @@ class RemoteDataRepository(private val dataDownloader: DataDownloader) : DataRep
         downloadProfile(refreshLoadedData)
         downloadProjectRepositories(refreshLoadedData)
     }
+
+    override fun reset() {
+        downloadProfileDismisser?.dismiss()
+        downloadProfileDismisser = null
+        alreadyProfileDownloaded = false
+
+        downloadProjectReposirotiesDismisser?.dismiss()
+        downloadProjectReposirotiesDismisser = null
+        alreadyProjectRepositoriesDownloaded = false
+    }
+
 }

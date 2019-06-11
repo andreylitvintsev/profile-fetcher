@@ -1,5 +1,6 @@
 package com.github.andreylitvintsev.profilefetcher.repository.remote
 
+import android.util.Log
 import com.github.andreylitvintsev.profilefetcher.MoshiProvider
 import com.github.andreylitvintsev.profilefetcher.OkHttpClientProvider
 import com.github.andreylitvintsev.profilefetcher.repository.DataWrapperForErrorHanding
@@ -13,7 +14,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 
 
 class RemoteDataDownloader(
-    private val authToken: String,
+    var authToken: String,
     moshiProvider: MoshiProvider,
     okHttpClientProvider: OkHttpClientProvider
 ) : DataDownloader {
@@ -37,7 +38,7 @@ class RemoteDataDownloader(
         resultCallback: (dataWrapper: DataWrapperForErrorHanding<Profile>) -> Unit
     ): DataDownloader.Dismisser {
         profileCall?.cancel()
-
+        Log.d("TOKEN", "used $authToken")
         profileCall = gitHubApi.getUserInfo("token $authToken")
         profileCall?.enqueue(object : Callback<Profile> {
             override fun onFailure(call: Call<Profile>, throwable: Throwable) {
@@ -45,9 +46,7 @@ class RemoteDataDownloader(
             }
 
             override fun onResponse(call: Call<Profile>, response: Response<Profile>) {
-                response.body()?.let { profile ->
-                    resultCallback(DataWrapperForErrorHanding(profile))
-                } ?: resultCallback(DataWrapperForErrorHanding(IllegalStateException("Loaded body is empty!")))
+                resultCallback(handleResponse(response))
             }
         })
 
@@ -65,13 +64,21 @@ class RemoteDataDownloader(
                 resultCallback(DataWrapperForErrorHanding(throwable))
 
             override fun onResponse(call: Call<List<ProjectRepository>>, response: Response<List<ProjectRepository>>) {
-                response.body()?.let { repositories ->
-                    resultCallback(DataWrapperForErrorHanding(repositories))
-                } ?: resultCallback(DataWrapperForErrorHanding(IllegalStateException("Loaded body is empty!")))
+                resultCallback(handleResponse(response))
             }
         })
 
         return configureDismisser(repositoriesCall)
+    }
+
+    private fun <T> handleResponse(response: Response<T>): DataWrapperForErrorHanding<T> {
+        return if (response.isSuccessful) DataWrapperForErrorHanding(response.body()!!)
+        else DataWrapperForErrorHanding(
+            IllegalStateException(
+                "Response with code ${response.code()}",
+                IllegalAccessException(response.code().toString())
+            )
+        )
     }
 
     private fun <T> configureDismisser(call: Call<T>?): DataDownloader.Dismisser {

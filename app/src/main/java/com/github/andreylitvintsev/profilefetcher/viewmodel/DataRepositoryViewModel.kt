@@ -1,6 +1,7 @@
 package com.github.andreylitvintsev.profilefetcher.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
@@ -15,7 +16,10 @@ import com.github.andreylitvintsev.profilefetcher.repository.remote.RemoteDataDo
 import com.github.andreylitvintsev.profilefetcher.repository.remote.RemoteDataRepository
 
 
-class DataRepositoryViewModel(authToken: String, application: Application) : AndroidViewModel(application) {
+class DataRepositoryViewModel(
+    authToken: String,
+    application: Application
+) : AndroidViewModel(application) {
 
     private val databaseProvider = application as DatabaseProvider
     private val moshiProvider = application as MoshiProvider
@@ -23,88 +27,78 @@ class DataRepositoryViewModel(authToken: String, application: Application) : And
 
     private val dataDownloader = RemoteDataDownloader(authToken, moshiProvider, okHttpClientProvider)
 
-    private val remoteDataRepository =
-        RemoteDataRepository(dataDownloader)
-    private val localDataRepository =
-        LocalDataRepository(databaseProvider)
+    var authToken: String
+        get() = dataDownloader.authToken
+        set(value) {
+            dataDownloader.authToken = value
+            remoteDataRepository.reset()
+        }
 
-    private val profileMediatorLiveData = createMediatorLiveData(
-        localDataRepository.getProfile(),
-        remoteDataRepository.getProfile(),
-        localDataRepository::updateProfile
-    )
+    private val remoteDataRepository = RemoteDataRepository(dataDownloader)
+    private val localDataRepository = LocalDataRepository(databaseProvider)
 
-    private val projectRepositoriesMediatorLiveData = createMediatorLiveData(
-        localDataRepository.getProjectRepositories(),
-        remoteDataRepository.getProjectRepositories(),
-        localDataRepository::upsertProjectRepositories
-    )
-
-    fun getProfile(): LiveData<DataWrapperForErrorHanding<Profile>> {
-        return profileMediatorLiveData
+    private val profileMediatorLiveData = lazy(LazyThreadSafetyMode.NONE) {
+        Log.d("TAG", "New live data profile")
+        createMediatorLiveData(
+            localDataRepository.getProfile(),
+            remoteDataRepository.getProfile(),
+            localDataRepository::updateProfile
+        )
     }
 
-    fun getRepositories(): LiveData<DataWrapperForErrorHanding<List<ProjectRepository>>> {
-        return projectRepositoriesMediatorLiveData
+    private val projectRepositoriesMediatorLiveData = lazy(LazyThreadSafetyMode.NONE) {
+        Log.d("TAG", "New live data mediator")
+        createMediatorLiveData(
+            localDataRepository.getProjectRepositories(),
+            remoteDataRepository.getProjectRepositories(),
+            localDataRepository::upsertProjectRepositories
+        )
+    }
+
+    fun getProfile(): LiveData<Event<DataWrapperForErrorHanding<Profile>>> {
+        return profileMediatorLiveData.value
+    }
+
+    fun getRepositories(): LiveData<Event<DataWrapperForErrorHanding<List<ProjectRepository>>>> {
+        return projectRepositoriesMediatorLiveData.value
     }
 
     fun reload() = remoteDataRepository.reload()
 
     private inline fun <T> createMediatorLiveData(
-        localSource: LiveData<DataWrapperForErrorHanding<T>>,
-        remoteSource: LiveData<DataWrapperForErrorHanding<T>>,
+        localSource: LiveData<Event<DataWrapperForErrorHanding<T>>>,
+        remoteSource: LiveData<Event<DataWrapperForErrorHanding<T>>>,
         crossinline persistData: (data: T) -> Unit
-    ): MediatorLiveData<DataWrapperForErrorHanding<T>> {
+    ): MediatorLiveData<Event<DataWrapperForErrorHanding<T>>> {
 
-        val mediatorLiveData = MediatorLiveData<DataWrapperForErrorHanding<T>>()
+        val mediatorLiveData = MediatorLiveData<Event<DataWrapperForErrorHanding<T>>>()
 
         mediatorLiveData.addSource(remoteSource) { remoteResult ->
+            val content = remoteResult.slightlyPeekContent()
+            when {
+                content.throwable == null -> {
+                    persistData(remoteResult.slightlyPeekContent().fetchedData!!)
+                    mediatorLiveData.value = remoteResult
+                }
 
-            if (remoteResult.throwable == null) {
-                persistData(remoteResult.fetchedData!!)
-                mediatorLiveData.value = remoteResult
+                content.throwable.cause is IllegalAccessException -> {
+                    mediatorLiveData.value = remoteResult
+                }
 
-            } else {
-                mediatorLiveData.addSource(localSource) { localResult ->
-                    if (localResult.fetchedData != null) {
-                        mediatorLiveData.value = localResult
-                    } else {
-                        mediatorLiveData.value = remoteResult
+                else -> {
+                    mediatorLiveData.addSource(localSource) { localResult ->
+                        if (content.fetchedData != null) {
+                            mediatorLiveData.value = localResult
+                        } else {
+                            mediatorLiveData.value = remoteResult
+                        }
+                        mediatorLiveData.removeSource(localSource)
                     }
-                    mediatorLiveData.removeSource(localSource)
                 }
             }
         }
 
         return mediatorLiveData
     }
-
-//    private inline fun <T> createMediatorLiveData(
-//        localSource: LiveData<DataWrapperForErrorHanding<T>>,
-//        remoteSource: LiveData<DataWrapperForErrorHanding<T>>,
-//        crossinline persistData: (data: T) -> Unit
-//    ): MediatorLiveData<DataWrapperForErrorHanding<T>> {
-//
-//        val mediatorLiveData = MediatorLiveData<DataWrapperForErrorHanding<T>>()
-//
-//        mediatorLiveData.addSource(localSource) { localResult ->
-//            if (localResult.fetchedData == null || (localResult.fetchedData as? Collection<*>)?.isEmpty() == true) {
-//
-//                mediatorLiveData.addSource(remoteSource) { remoteResult ->
-//
-//                    if (remoteResult.fetchedData != null) {
-//                        persistData(remoteResult.fetchedData)
-//                    }
-//                    mediatorLiveData.value = remoteResult
-//                }
-//
-//            } else {
-//                mediatorLiveData.value = localResult
-//            }
-//        }
-//
-//        return mediatorLiveData
-//    }
-
 
 }

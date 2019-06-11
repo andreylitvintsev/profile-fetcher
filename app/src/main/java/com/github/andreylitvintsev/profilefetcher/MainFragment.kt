@@ -19,7 +19,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.github.andreylitvintsev.profilefetcher.repository.model.Profile
 import com.github.andreylitvintsev.profilefetcher.repository.model.ProjectRepository
 import com.github.andreylitvintsev.profilefetcher.viewmodel.DataRepositoryViewModel
-import com.github.andreylitvintsev.profilefetcher.viewmodel.observeDataWrapper
+import com.github.andreylitvintsev.profilefetcher.viewmodel.observeEventWithErrorHandling
 import kotlinx.android.synthetic.main.fragment_main.*
 
 
@@ -54,12 +54,12 @@ class MainFragment : Fragment() {
         }*/
         recyclerView.adapter = dataAdapter
 
-        dataRepositoryViewModel.getProfile().observe(this@MainFragment, observeDataWrapper(
-            onSuccess = { profile -> dataAdapter.setProfile(profile) }
-        ))
-        dataRepositoryViewModel.getRepositories().observe(this@MainFragment, observeDataWrapper(
-            onSuccess = { projectRepositories -> dataAdapter.setProjectRepositories(projectRepositories) }
-        ))
+        dataRepositoryViewModel.getProfile().observeEventWithErrorHandling(this@MainFragment,
+            onSuccess = { profile, _ -> dataAdapter.setProfile(profile) }
+        )
+        dataRepositoryViewModel.getRepositories().observeEventWithErrorHandling(this@MainFragment,
+            onSuccess = { projectRepositories, _ -> dataAdapter.setProjectRepositories(projectRepositories) }
+        )
     }
 
 }

@@ -12,7 +12,7 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import com.github.andreylitvintsev.profilefetcher.viewmodel.AuthViewModel
-import com.github.andreylitvintsev.profilefetcher.viewmodel.observeDataWrapper
+import com.github.andreylitvintsev.profilefetcher.viewmodel.observeWithErrorHandling
 import kotlinx.android.synthetic.main.fragment_auth.*
 
 
@@ -40,7 +40,13 @@ class AuthFragment : Fragment(), OnNewIntentListener {
         signIn.setOnClickListener {
             customTabsIntent.launchUrl(
                 activity,
-                Uri.parse("https://github.com/login/oauth/authorize?client_id=d43b1ed587684df51150&scope=user&state=RandStringSomea&redirect_uri=profilefetcher%3A%2F%2Fhelloworld")
+                Uri.parse(
+                    "https://github.com/login/oauth/authorize" +
+                            "?client_id=d43b1ed587684df51150" +
+                            "&scope=user" +
+                            "&state=RandStringSomea" +
+                            "&redirect_uri=profilefetcher%3A%2F%2Fhelloworld"
+                )
             ) // TODO: Context or Activity
         }
     }
@@ -61,12 +67,13 @@ class AuthFragment : Fragment(), OnNewIntentListener {
                         uri.getQueryParameter("code")!!,
                         uri.getQueryParameter("state")!!
                     )
-                    .observe(this, observeDataWrapper(::onSuccess, ::onError))
+                    .observeWithErrorHandling(this, ::onSuccess, ::onError)
             }
         }
     }
 
     private fun onSuccess(result: String) {
+        Log.d("TOKEN success", result)
         activity!!.getPreferences(Activity.MODE_PRIVATE)
             .edit()
             .putString(MainActivity.AUTH_TOKEN_KEY, result)
