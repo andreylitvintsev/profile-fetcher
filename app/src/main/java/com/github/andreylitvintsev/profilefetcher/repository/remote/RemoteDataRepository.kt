@@ -6,7 +6,6 @@ import com.github.andreylitvintsev.profilefetcher.repository.DataRepository
 import com.github.andreylitvintsev.profilefetcher.repository.DataWrapperForErrorHanding
 import com.github.andreylitvintsev.profilefetcher.repository.model.Profile
 import com.github.andreylitvintsev.profilefetcher.repository.model.ProjectRepository
-import com.github.andreylitvintsev.profilefetcher.repository.remote.DataDownloader
 
 
 class RemoteDataRepository(private val dataDownloader: DataDownloader) : DataRepository {
@@ -17,18 +16,24 @@ class RemoteDataRepository(private val dataDownloader: DataDownloader) : DataRep
     private var downloadProfileInProgress = false
     private var downloadProjectRepositoriesInProgress = false
 
+    private var alreadyProfileDownloaded = false
+    private var alreadyProjectRepositoriesDownloaded = false
+
     override fun getProfile(): LiveData<DataWrapperForErrorHanding<Profile>> {
         downloadProfile()
         return profileLiveData
     }
 
-    private fun downloadProfile() {
+    private fun downloadProfile(refreshLoadedData: Boolean = false) {
+        if (alreadyProfileDownloaded && !refreshLoadedData) return
+
         if (!downloadProfileInProgress) {
             downloadProfileInProgress = true
 
             dataDownloader.getProfile {
                 profileLiveData.value = it
                 downloadProfileInProgress = false
+                alreadyProfileDownloaded = true
             }
 
         }
@@ -39,20 +44,22 @@ class RemoteDataRepository(private val dataDownloader: DataDownloader) : DataRep
         return projectRepositoryLiveData
     }
 
-    private fun downloadProjectRepositories() {
+    private fun downloadProjectRepositories(refreshLoadedData: Boolean = false) {
+        if (alreadyProjectRepositoriesDownloaded && !refreshLoadedData) return
+
         if (!downloadProjectRepositoriesInProgress) {
             downloadProjectRepositoriesInProgress = true
 
             dataDownloader.getProjectRepositories {
                 projectRepositoryLiveData.value = it
                 downloadProjectRepositoriesInProgress = false
+                alreadyProjectRepositoriesDownloaded = true
             }
         }
     }
 
-    override fun reload() {
-        downloadProfile()
-        downloadProjectRepositories()
+    override fun reload(refreshLoadedData: Boolean) {
+        downloadProfile(refreshLoadedData)
+        downloadProjectRepositories(refreshLoadedData)
     }
-
 }

@@ -52,7 +52,7 @@ class LoadingStubFragment : Fragment() {
         networkConnectivityCallbacks = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network?) {
                 activity?.runOnUiThread {
-                    rootViewAnimator.displayedChild = 0
+                    rootViewAnimator?.displayedChild = 0
                     dataRepositoryViewModel.reload()
                 }
             }
