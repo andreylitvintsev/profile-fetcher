@@ -9,6 +9,6 @@ import com.github.andreylitvintsev.profilefetcher.viewmodel.Event
 interface DataRepository {
     fun getProfile(): LiveData<Event<DataWrapperForErrorHanding<Profile>>>
     fun getProjectRepositories(): LiveData<Event<DataWrapperForErrorHanding<List<ProjectRepository>>>>
-    fun reload(refreshLoadedData: Boolean = false)
+    fun reload()
     fun reset()
 }

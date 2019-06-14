@@ -83,7 +83,7 @@ class AuthFragment : Fragment(), OnNewIntentListener {
     }
 
     private fun onError(throwable: Throwable) {
-        Log.d("TAG", "notok")
+        Log.d("TAG", "notok") // FIXME: !!!!
     }
 
 }

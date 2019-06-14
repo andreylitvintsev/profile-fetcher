@@ -20,13 +20,16 @@ import com.github.andreylitvintsev.profilefetcher.viewmodel.observeEventWithErro
 import kotlinx.android.synthetic.main.fragment_loading_stub.*
 import java.net.ConnectException
 import java.net.UnknownHostException
+import javax.net.ssl.SSLException
 
 
 class LoadingStubFragment : Fragment() {
 
     companion object {
         fun instantiate(authToken: String) = LoadingStubFragment().apply {
-            this.authToken = authToken
+            arguments = Bundle().apply {
+                putString("authToken", authToken)
+            }
         }
     }
 
@@ -46,7 +49,8 @@ class LoadingStubFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        Log.d("TAG", "onAttach")
+
+        authToken = arguments?.getString("authToken") ?: error("Argument must have auth token!")
 
         dataRepositoryViewModel = ViewModelProviders.of(
             activity!!, DataRepositoryViewModelFactory(authToken, activity!!.application)
@@ -156,7 +160,7 @@ class LoadingStubFragment : Fragment() {
     }
 
     private fun checkThrowableForNetworkTrouble(throwable: Throwable): Boolean {
-        return (throwable is ConnectException || throwable is UnknownHostException)
+        return (throwable is ConnectException || throwable is UnknownHostException || throwable is SSLException)
                 && rootViewAnimator.displayedChild == 0
     }
 

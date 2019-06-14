@@ -50,7 +50,7 @@ class LocalDataRepository(databaseProvider: DatabaseProvider) :
         }.execute()
     }
 
-    override fun reload(refreshLoadedData: Boolean) = Unit // Do nothing :(
+    override fun reload() = Unit // Do nothing :(
 
     override fun reset() = Unit // Do nothing :C
 

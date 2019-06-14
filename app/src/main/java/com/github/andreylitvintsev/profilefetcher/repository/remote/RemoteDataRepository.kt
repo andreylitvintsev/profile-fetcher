@@ -57,9 +57,9 @@ class RemoteDataRepository(private val dataDownloader: DataDownloader) : DataRep
         }
     }
 
-    override fun reload(refreshLoadedData: Boolean) {
-        downloadProfile(refreshLoadedData)
-        downloadProjectRepositories(refreshLoadedData)
+    override fun reload() {
+        downloadProfile(refreshLoadedData = true)
+        downloadProjectRepositories(refreshLoadedData = true)
     }
 
     override fun reset() {

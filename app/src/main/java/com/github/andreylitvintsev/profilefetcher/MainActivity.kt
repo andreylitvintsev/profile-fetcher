@@ -11,9 +11,12 @@ import androidx.fragment.app.FragmentTransaction
 
 // TODO: попробовать перенести обертку в Event
 // TODO: попробовать перенести убрать ленивую иництализацию
-// TODO: решить проблемы с отсутсвием интернета
+// TODO: убрать утечки в памяти
+// TODO: разобраться с "notok"
 // TODO: разлогин
 // TODO: сделать отображение загрузки
+// TODO: немного прибраться в коде
+// TODO: поведение при timeout
 
 // TODO: https://github.com/square/okhttp/wiki/Recipes
 class MainActivity : AppCompatActivity(), NewIntentListenerHolder, DetectAuthTokenListener {
