@@ -74,10 +74,10 @@ class DataRepositoryViewModel(
         val mediatorLiveData = MediatorLiveData<Event<DataWrapperForErrorHanding<T>>>()
 
         mediatorLiveData.addSource(remoteSource) { remoteResult ->
-            val content = remoteResult.slightlyPeekContent()
+            val content = remoteResult.quietlyPeekContent()
             when {
                 content.throwable == null -> {
-                    persistData(remoteResult.slightlyPeekContent().fetchedData!!)
+                    persistData(remoteResult.quietlyPeekContent().fetchedData!!)
                     mediatorLiveData.value = remoteResult
                 }
 
@@ -87,7 +87,7 @@ class DataRepositoryViewModel(
 
                 else -> {
                     mediatorLiveData.addSource(localSource) { localResult ->
-                        if (content.fetchedData != null) {
+                        if (localResult.quietlyPeekContent().fetchedData != null) {
                             mediatorLiveData.value = localResult
                         } else {
                             mediatorLiveData.value = remoteResult
