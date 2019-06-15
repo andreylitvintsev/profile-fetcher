@@ -1,25 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:orientation="horizontal"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:paddingTop="28dp"
-              android:paddingBottom="28dp"
-              android:gravity="center">
+<androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center">
+
+    <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
     <ImageView
             android:id="@+id/avatarView"
             android:layout_width="200dp"
             android:layout_height="200dp"
             tools:src="@tools:sample/avatars[7]"
-            android:layout_marginEnd="56dp"/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/linearLayout"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginEnd="56dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_chainStyle="packed"/>
 
     <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:id="@+id/linearLayout"
+            app:layout_constraintStart_toEndOf="@+id/avatarView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/avatarView"
+            app:layout_constraintBottom_toBottomOf="@+id/avatarView"
+            app:layout_constraintHorizontal_bias="0.5">
 
         <TextView
                 android:id="@+id/nameView"
@@ -50,9 +72,10 @@
                 android:padding="8dp"
                 android:alpha="0.4"
                 android:background="?attr/selectableItemBackgroundBorderless"
+                android:focusable="true"
                 android:clickable="true"
                 android:src="@drawable/ic_github"/>
 
     </LinearLayout>
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

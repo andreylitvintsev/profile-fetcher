@@ -13,7 +13,6 @@ import androidx.fragment.app.FragmentTransaction
 // TODO: попробовать перенести убрать ленивую иництализацию
 // TODO: убрать утечки в памяти
 // TODO: разобраться с "notok"
-// TODO: разлогин
 // TODO: сделать отображение загрузки
 // TODO: немного прибраться в коде
 // TODO: поведение при timeout

@@ -4,8 +4,13 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:padding="56dp"
               android:gravity="center">
+
+    <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_marginBottom="56dp"/>
 
     <ImageView
             android:id="@+id/avatarView"
@@ -40,9 +45,11 @@
             android:id="@+id/githubButton"
             android:layout_width="56dp"
             android:layout_height="56dp"
+            android:layout_marginBottom="56dp"
             android:padding="8dp"
             android:alpha="0.4"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:focusable="true"
             android:clickable="true"
             android:src="@drawable/ic_github"/>
 
