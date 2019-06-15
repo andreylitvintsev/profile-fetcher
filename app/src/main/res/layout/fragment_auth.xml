@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:gravity="center">
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/signIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sign in"/>
+            android:drawableStart="@drawable/ic_github"
+            android:drawablePadding="8dp"
+            android:padding="16dp"
+            app:drawableTint="@color/colorSignInTextTint"
+            android:textColor="@color/colorSignInTextTint"
+            android:text="@string/sign_in_with_github"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:backgroundTint="?colorPrimary"
+            android:textAllCaps="false"/>
 
 </LinearLayout>

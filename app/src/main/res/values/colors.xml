@@ -3,4 +3,5 @@
     <color name="colorPrimary">#24292E</color>
     <color name="colorPrimaryDark">#171515</color>
     <color name="colorAccent">#D81B60</color>
+    <color name="colorSignInTextTint">#ffffff</color>
 </resources>
