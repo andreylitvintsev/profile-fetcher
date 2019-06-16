@@ -2,4 +2,5 @@
     <string name="app_name">GitHub Profile</string>
     <string name="logout_menu_item">Logout</string>
     <string name="sign_in_with_github">Sign in with GitHub</string>
+    <string name="unknown_error_message">Something wrong! Try relaunch app!</string>
 </resources>

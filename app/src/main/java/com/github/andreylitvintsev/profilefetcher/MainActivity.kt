@@ -11,8 +11,6 @@ import androidx.fragment.app.FragmentTransaction
 
 // TODO: попробовать перенести обертку в Event
 // TODO: попробовать перенести убрать ленивую иництализацию
-// TODO: убрать утечки в памяти
-// TODO: разобраться с "notok"
 // TODO: немного прибраться в коде
 // TODO: поведение при timeout
 

@@ -4,15 +4,16 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import com.github.andreylitvintsev.profilefetcher.viewmodel.AuthViewModel
 import com.github.andreylitvintsev.profilefetcher.viewmodel.observeWithErrorHandling
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_auth.*
 
 
@@ -125,8 +126,6 @@ class AuthFragment : Fragment(), OnNewIntentListener {
     }
 
     private fun onSuccess(result: String) {
-        Log.d("TOKEN success", result)
-
         nowLoadingAuthToken = false
 
         activity!!.getPreferences(Activity.MODE_PRIVATE)
@@ -138,7 +137,16 @@ class AuthFragment : Fragment(), OnNewIntentListener {
     }
 
     private fun onError(throwable: Throwable) {
-        Log.d("TAG", "notok") // FIXME: !!!!
+        showErrorSnackbar()
+    }
+
+    private fun showErrorSnackbar() {
+        Snackbar
+            .make(this.view!!, R.string.unknown_error_message, Snackbar.LENGTH_LONG)
+            .apply {
+                this.view.setBackgroundColor(ContextCompat.getColor(activity!!, R.color.colorError))
+            }
+            .show()
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
@@ -150,6 +158,5 @@ class AuthFragment : Fragment(), OnNewIntentListener {
         super.onSaveInstanceState(outState)
         outState.putBoolean(BUTTON_STATE_KEY, nowLoadingAuthToken)
     }
-
 
 }
