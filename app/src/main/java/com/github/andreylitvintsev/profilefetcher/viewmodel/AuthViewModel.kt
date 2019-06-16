@@ -10,11 +10,22 @@ import com.github.andreylitvintsev.profilefetcher.repository.DataWrapperForError
 
 class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
-    val moshiProvider = application as MoshiProvider
-    val okHttpClientProvider = application as OkHttpClientProvider
+    private val moshiProvider = application as MoshiProvider
+    private val okHttpClientProvider = application as OkHttpClientProvider
+
+    private var authLiveData: LiveData<DataWrapperForErrorHanding<String>>? = null
+    private var code: String? = null
+    private var state: String? = null
 
     fun getAuthToken(code: String, state: String): LiveData<DataWrapperForErrorHanding<String>> {
-        return AuthLiveData(code, state, moshiProvider, okHttpClientProvider)
+        if (code != this.code && state != this.state) {
+            authLiveData = AuthLiveData(code, state, moshiProvider, okHttpClientProvider)
+        }
+        return authLiveData!!
+    }
+
+    fun tryRestoreAuthToken(): LiveData<DataWrapperForErrorHanding<String>>? {
+        return authLiveData
     }
 
 }

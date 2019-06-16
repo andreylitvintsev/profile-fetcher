@@ -1,23 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:gravity="center">
 
-    <androidx.appcompat.widget.AppCompatButton
+    <ViewAnimator
             android:id="@+id/signIn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_github"
-            android:drawablePadding="8dp"
-            android:padding="16dp"
-            app:drawableTint="@color/colorSignInTextTint"
-            android:textColor="@color/colorSignInTextTint"
-            android:text="@string/sign_in_with_github"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:backgroundTint="?colorPrimary"
-            android:textAllCaps="false"/>
+            android:layout_width="192dp"
+            android:layout_height="56dp"
+            android:focusable="true"
+            android:clickable="true"
+            android:background="@drawable/bg_sign_in_button">
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/sign_in_with_github"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textColor="?colorPrimary"
+                android:gravity="center"
+                android:drawableStart="@drawable/ic_github"
+                android:drawablePadding="8dp"/>
+
+        <ProgressBar
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:indeterminate="true"
+                android:layout_gravity="center"
+                android:padding="16dp"
+                android:indeterminateTint="?colorPrimary"/>
+
+    </ViewAnimator>
 
 </LinearLayout>
