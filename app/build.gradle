@@ -55,10 +55,10 @@ dependencies {
     implementation 'com.github.bumptech.glide:okhttp3-integration:4.9.0'
     kapt 'com.github.bumptech.glide:compiler:4.9.0'
 
-    debugImplementation 'com.squareup.okhttp3:logging-interceptor:3.14.2'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.14.2'
 
-    debugImplementation 'com.facebook.stetho:stetho:1.5.1'
+    implementation 'com.facebook.stetho:stetho:1.5.1'
 
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.3'
-    debugImplementation 'com.squareup.leakcanary:leakcanary-support-fragment:1.6.3'
+    implementation 'com.squareup.leakcanary:leakcanary-android:1.6.3'
+    implementation 'com.squareup.leakcanary:leakcanary-support-fragment:1.6.3'
 }
