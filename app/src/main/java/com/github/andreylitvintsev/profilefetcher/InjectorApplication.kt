@@ -39,14 +39,11 @@ class InjectorApplication : Application(), DatabaseProvider, MoshiProvider, OkHt
     override fun onCreate() {
         super.onCreate()
 
-        if (LeakCanary.isInAnalyzerProcess(this)) {
-            // This process is dedicated to LeakCanary for heap analysis.
-            // You should not init your app in this process.
-            return;
-        }
-        LeakCanary.install(this);
-
         if (BuildConfig.DEBUG) {
+            if (!LeakCanary.isInAnalyzerProcess(this)) {
+                LeakCanary.install(this)
+            }
+
             Stetho.initializeWithDefaults(this)
         }
 
@@ -73,12 +70,7 @@ class InjectorApplication : Application(), DatabaseProvider, MoshiProvider, OkHt
                     this.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
                 }
             }
-            .addInterceptor { chain ->
-                val request = chain.request().newBuilder()
-                    .addHeader("Authorization", "token  ${BuildConfig.GITHUB_PROFILE_TOKEN}")
-                    .build()
-                chain.proceed(request)
-            }.build()
+            .build()
     }
 
 }

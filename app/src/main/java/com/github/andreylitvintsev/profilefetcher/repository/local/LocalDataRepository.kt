@@ -1,6 +1,7 @@
 package com.github.andreylitvintsev.profilefetcher.repository.local
 
 import android.os.AsyncTask
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.github.andreylitvintsev.profilefetcher.DatabaseProvider
@@ -8,6 +9,7 @@ import com.github.andreylitvintsev.profilefetcher.repository.DataWrapperForError
 import com.github.andreylitvintsev.profilefetcher.repository.PersistentDataRepository
 import com.github.andreylitvintsev.profilefetcher.repository.model.Profile
 import com.github.andreylitvintsev.profilefetcher.repository.model.ProjectRepository
+import com.github.andreylitvintsev.profilefetcher.viewmodel.Event
 
 
 class LocalDataRepository(databaseProvider: DatabaseProvider) :
@@ -23,19 +25,16 @@ class LocalDataRepository(databaseProvider: DatabaseProvider) :
         }
     }
 
-    override fun getProfile(): LiveData<DataWrapperForErrorHanding<Profile>> {
+    override fun getProfile(): LiveData<Event<DataWrapperForErrorHanding<Profile>>> {
+        Log.d("HOT", "HOT download")
         return Transformations.map(profileDao.get()) {
-            DataWrapperForErrorHanding(
-                it
-            )
+            Event(DataWrapperForErrorHanding(it))
         }
     }
 
-    override fun getProjectRepositories(): LiveData<DataWrapperForErrorHanding<List<ProjectRepository>>> {
+    override fun getProjectRepositories(): LiveData<Event<DataWrapperForErrorHanding<List<ProjectRepository>>>> {
         return Transformations.map(projectRepositoryDao.getAll()) {
-            DataWrapperForErrorHanding(
-                it
-            )
+            Event(DataWrapperForErrorHanding(it))
         }
     }
 
@@ -52,6 +51,8 @@ class LocalDataRepository(databaseProvider: DatabaseProvider) :
     }
 
     override fun reload() = Unit // Do nothing :(
+
+    override fun reset() = Unit // Do nothing :C
 
 }
 

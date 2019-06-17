@@ -6,53 +6,70 @@ import com.github.andreylitvintsev.profilefetcher.repository.DataRepository
 import com.github.andreylitvintsev.profilefetcher.repository.DataWrapperForErrorHanding
 import com.github.andreylitvintsev.profilefetcher.repository.model.Profile
 import com.github.andreylitvintsev.profilefetcher.repository.model.ProjectRepository
-import com.github.andreylitvintsev.profilefetcher.repository.remote.DataDownloader
+import com.github.andreylitvintsev.profilefetcher.viewmodel.Event
 
 
 class RemoteDataRepository(private val dataDownloader: DataDownloader) : DataRepository {
 
-    private val profileLiveData = MutableLiveData<DataWrapperForErrorHanding<Profile>>()
-    private val projectRepositoryLiveData = MutableLiveData<DataWrapperForErrorHanding<List<ProjectRepository>>>()
+    private val profileLiveData = MutableLiveData<Event<DataWrapperForErrorHanding<Profile>>>()
+    private val projectRepositoryLiveData = MutableLiveData<Event<DataWrapperForErrorHanding<List<ProjectRepository>>>>()
 
-    private var downloadProfileInProgress = false
-    private var downloadProjectRepositoriesInProgress = false
+    private var downloadProfileDismisser: DataDownloader.Dismisser? = null
+    private var downloadProjectReposirotiesDismisser: DataDownloader.Dismisser? = null
 
-    override fun getProfile(): LiveData<DataWrapperForErrorHanding<Profile>> {
+    private var alreadyProfileDownloaded = false
+    private var alreadyProjectRepositoriesDownloaded = false
+
+    override fun getProfile(): LiveData<Event<DataWrapperForErrorHanding<Profile>>> {
         downloadProfile()
         return profileLiveData
     }
 
-    private fun downloadProfile() {
-        if (!downloadProfileInProgress) {
-            downloadProfileInProgress = true
+    private fun downloadProfile(refreshLoadedData: Boolean = false) {
+        if (alreadyProfileDownloaded && !refreshLoadedData) return
 
-            dataDownloader.getProfile {
-                profileLiveData.value = it
-                downloadProfileInProgress = false
+        if (downloadProfileDismisser == null) {
+
+            downloadProfileDismisser = dataDownloader.getProfile {
+                profileLiveData.value = Event(it)
+                downloadProfileDismisser = null
+                alreadyProfileDownloaded = true
             }
 
         }
     }
 
-    override fun getProjectRepositories(): LiveData<DataWrapperForErrorHanding<List<ProjectRepository>>> {
+    override fun getProjectRepositories(): LiveData<Event<DataWrapperForErrorHanding<List<ProjectRepository>>>> {
         downloadProjectRepositories()
         return projectRepositoryLiveData
     }
 
-    private fun downloadProjectRepositories() {
-        if (!downloadProjectRepositoriesInProgress) {
-            downloadProjectRepositoriesInProgress = true
+    private fun downloadProjectRepositories(refreshLoadedData: Boolean = false) {
+        if (alreadyProjectRepositoriesDownloaded && !refreshLoadedData) return
 
-            dataDownloader.getProjectRepositories {
-                projectRepositoryLiveData.value = it
-                downloadProjectRepositoriesInProgress = false
+        if (downloadProjectReposirotiesDismisser == null) {
+
+            downloadProjectReposirotiesDismisser = dataDownloader.getProjectRepositories {
+                projectRepositoryLiveData.value = Event(it)
+                downloadProjectReposirotiesDismisser = null
+                alreadyProjectRepositoriesDownloaded = true
             }
         }
     }
 
     override fun reload() {
-        downloadProfile()
-        downloadProjectRepositories()
+        downloadProfile(refreshLoadedData = true)
+        downloadProjectRepositories(refreshLoadedData = true)
+    }
+
+    override fun reset() {
+        downloadProfileDismisser?.dismiss()
+        downloadProfileDismisser = null
+        alreadyProfileDownloaded = false
+
+        downloadProjectReposirotiesDismisser?.dismiss()
+        downloadProjectReposirotiesDismisser = null
+        alreadyProjectRepositoriesDownloaded = false
     }
 
 }

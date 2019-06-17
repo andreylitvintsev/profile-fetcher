@@ -1,5 +1,6 @@
 package com.github.andreylitvintsev.profilefetcher
 
+import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
@@ -8,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.widget.Toolbar
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -19,7 +21,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.github.andreylitvintsev.profilefetcher.repository.model.Profile
 import com.github.andreylitvintsev.profilefetcher.repository.model.ProjectRepository
 import com.github.andreylitvintsev.profilefetcher.viewmodel.DataRepositoryViewModel
-import com.github.andreylitvintsev.profilefetcher.viewmodel.observeDataWrapper
+import com.github.andreylitvintsev.profilefetcher.viewmodel.observeEventWithErrorHandling
 import kotlinx.android.synthetic.main.fragment_main.*
 
 
@@ -44,27 +46,35 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val dataAdapter = DataAdapter(customTabsIntent)
+        val dataAdapter = DataAdapter(customTabsIntent, ::logout)
 
         // TODO: корректно настроить
         recyclerView.setHasFixedSize(true)
-        recyclerView.layoutManager = LinearLayoutManager(context)/*.also {
-            it.initialPrefetchItemCount = 10
-            it.isItemPrefetchEnabled = true
-        }*/
+        recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = dataAdapter
 
-        dataRepositoryViewModel.getProfile().observe(this@MainFragment, observeDataWrapper(
-            onSuccess = { profile -> dataAdapter.setProfile(profile) }
-        ))
-        dataRepositoryViewModel.getRepositories().observe(this@MainFragment, observeDataWrapper(
-            onSuccess = { projectRepositories -> dataAdapter.setProjectRepositories(projectRepositories) }
-        ))
+        dataRepositoryViewModel.getProfile().observeEventWithErrorHandling(this@MainFragment,
+            onSuccess = { profile, _ -> dataAdapter.setProfile(profile) }
+        )
+        dataRepositoryViewModel.getRepositories().observeEventWithErrorHandling(this@MainFragment,
+            onSuccess = { projectRepositories, _ -> dataAdapter.setProjectRepositories(projectRepositories) }
+        )
+    }
+
+    private fun logout() {
+        activity!!.getPreferences(Activity.MODE_PRIVATE).edit()
+            .putString(MainActivity.AUTH_TOKEN_KEY, "").apply()
+        activity!!.supportFragmentManager.beginTransaction()
+            .replace(android.R.id.content, AuthFragment()).commit()
     }
 
 }
 
-class DataAdapter(private val customTabsIntent: CustomTabsIntent) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class DataAdapter(
+    private val customTabsIntent: CustomTabsIntent,
+    private val logoutCallback: () -> Unit
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
     private val PROFILE_VIEW_TYPE = 0
     private val PROJECT_REPOSITORY_VIEW_TYPE = 1
 
@@ -75,7 +85,8 @@ class DataAdapter(private val customTabsIntent: CustomTabsIntent) : RecyclerView
         return when (viewType) {
             PROFILE_VIEW_TYPE -> ProfileViewHolder(
                 LayoutInflater.from(parent.context).inflate(R.layout.item_profile_info, parent, false),
-                customTabsIntent
+                customTabsIntent,
+                logoutCallback
             )
             else -> ProjectRepositoryViewHolder(
                 LayoutInflater.from(parent.context).inflate(R.layout.item_project_repository, parent, false),
@@ -115,7 +126,8 @@ class DataAdapter(private val customTabsIntent: CustomTabsIntent) : RecyclerView
 
 private class ProfileViewHolder(
     itemView: View,
-    private val customTabsIntent: CustomTabsIntent
+    private val customTabsIntent: CustomTabsIntent,
+    logoutCallback: () -> Unit
 ) : RecyclerView.ViewHolder(itemView) {
 
     private val loginView = itemView.findViewById<TextView>(R.id.loginView)
@@ -123,6 +135,10 @@ private class ProfileViewHolder(
     private val locationView = itemView.findViewById<TextView>(R.id.locationView)
     private val avatarView = itemView.findViewById<ImageView>(R.id.avatarView)
     private val githubButton = itemView.findViewById<View>(R.id.githubButton)
+
+    init {
+        initToolbar(logoutCallback)
+    }
 
     fun onBindViewHolder(profile: Profile?) {
         if (profile == null) return
@@ -133,6 +149,22 @@ private class ProfileViewHolder(
         avatarView.loadImageFrom(profile.avatarUrl)
         githubButton.setOnClickListener {
             customTabsIntent.launchUrl(it.context, Uri.parse(profile.url))
+        }
+    }
+
+    private fun initToolbar(logoutCallback: () -> Unit) {
+        itemView.findViewById<Toolbar>(R.id.toolbar).apply {
+            inflateMenu(R.menu.main_menu)
+            setOnMenuItemClickListener {
+                when (it.itemId) {
+                    R.id.logout -> {
+                        logoutCallback.invoke()
+                        true
+                    }
+
+                    else -> false
+                }
+            }
         }
     }
 
